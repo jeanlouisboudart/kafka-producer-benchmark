@@ -41,11 +41,21 @@ Do not hesitate to report us via github issues and/or create a pull request.
 
 ## Adding a new scenario ?
 
+The `./run-scenarios.sh` script is looking for all files matching the patern `scenario-<description>.env`.
+Existing scenarios has been named with the following naming convention `scenario-<nbtopics>t<nbpartitions>p-<description>.env`.
+
+The easiest way to create a new scenario would be to duplicate an existing scenario file and play with the values.
+You can override any producer configuration available in the clients by using the following naming conventions :
+* Prefix with KAFKA_.
+* Convert to upper-case.
+* Replace a period (.) with a single underscore (_).
+
 
 ## Adding a new client ?
 We strongly recommend you to run your test against localhost:9092 you can leverage the default `docker-compose.yml` to have a development environment.
 
 Make everything configurable via environment variable.
+
 Default variables are :
 * KAFKA_BOOTSTRAP_SERVERS=localhost
 * NB_TOPICS=1

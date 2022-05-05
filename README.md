@@ -64,6 +64,7 @@ Default variables are :
 * MESSAGE_SIZE=200
 * NB_MESSAGES=1000000
 * REPORTING_INTERVAL=1000
+* USE_RANDOM_KEYS=true
 Those variables should be used by all clients to makes things easier to configure, but each client implementation can have its own set of custom configuration variables.
 
 Convert KAFKA_XXX into lowercase by replacing "_" with dots.

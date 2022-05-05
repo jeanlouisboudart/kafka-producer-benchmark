@@ -13,12 +13,8 @@ public class BenchmarkProducer {
 
     private static final String KAFKA_ENV_PREFIX = "KAFKA_";
     private final Logger logger = LoggerFactory.getLogger(BenchmarkProducer.class);
-    private final Properties properties;
-    private final String topicPrefix;
-    private final Short messageSize;
-    private final Long reportingInterval;
+
     private final Injector injector;
-    private final Long numberOfMessages;
 
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
@@ -27,18 +23,18 @@ public class BenchmarkProducer {
     }
 
     public BenchmarkProducer() throws ExecutionException, InterruptedException {
-        this.properties = buildProperties(defaultProps, System.getenv(), KAFKA_ENV_PREFIX);
-        this.topicPrefix = System.getenv().getOrDefault("TOPIC_PREFIX", "sample");
-
-        this.messageSize = Short.valueOf(System.getenv().getOrDefault("MESSAGE_SIZE", "200"));
-        this.reportingInterval = Long.valueOf(System.getenv().getOrDefault("REPORTING_INTERVAL", "1000"));
-        this.numberOfMessages = Long.valueOf(System.getenv().getOrDefault("NB_MESSAGES", "1000000"));
+        final Properties properties = buildProperties(defaultProps, System.getenv(), KAFKA_ENV_PREFIX);
+        final String topicPrefix = System.getenv().getOrDefault("TOPIC_PREFIX", "sample");
+        final Short messageSize = Short.valueOf(System.getenv().getOrDefault("MESSAGE_SIZE", "200"));
+        final Long reportingInterval = Long.valueOf(System.getenv().getOrDefault("REPORTING_INTERVAL", "1000"));
+        final Long numberOfMessages = Long.valueOf(System.getenv().getOrDefault("NB_MESSAGES", "1000000"));
+        final Boolean useRandomKeys = Boolean.valueOf(System.getenv().getOrDefault("USE_RANDOM_KEYS", "true")); 
 
 
         final Short nbTopics = Short.valueOf(System.getenv().getOrDefault("NB_TOPICS", "1"));
         final List<String> topicsNames = IntStream.range(0, nbTopics).mapToObj((e) -> topicPrefix + "_" + e).collect(Collectors.toList());
 
-        this.injector = new Injector(properties, topicsNames, numberOfMessages, messageSize, reportingInterval);
+        this.injector = new Injector(properties, topicsNames, numberOfMessages, messageSize, reportingInterval, useRandomKeys);
     }
 
     private void start() throws InterruptedException {

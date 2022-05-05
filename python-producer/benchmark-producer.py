@@ -28,8 +28,9 @@ def main():
     nbMessages= int(os.getenv("NB_MESSAGES", "1000000"))
     reportingInterval= int(os.getenv("REPORTING_INTERVAL", "1000"))
     nbTopics = int(os.getenv("NB_TOPICS", "1"))
+    useKeys = os.getenv("USE_RANDOM_KEYS", "true") == "true"
     
-    logger.info("Running benchmark with %s topics %s messages of %s bytes each", nbTopics, nbMessages, messageSize)
+    logger.info("Running benchmark with %s topics %s messages of %s bytes each with random keys=%s", nbTopics, nbMessages, messageSize, useKeys)
 
     producer_props = {
         "bootstrap.servers": "localhost:9092",
@@ -62,8 +63,8 @@ def main():
         totalMsgs= 0
 
         for _ in range(nbMessages):
-            topic = topicPrefix + str(totalMsgs % nbTopics)
-            key = str(uuid.uuid4())
+            topic = topicPrefix + "_" +str(totalMsgs % nbTopics)
+            key = str(uuid.uuid4()) if useKeys else None
             value = random.choice(events)
 
             producer.produce(topic, key, value)
@@ -136,13 +137,13 @@ class Producer:
         #self._poll_thread.join()
     
     def produce2(self, topic, key, value):
-        self._producer.produce(topic, key, value)
+        self._producer.produce(topic, value, key)
         #self._producer.poll(0)
 
     def produce(self, topic, key, value):
         while True:
             try:
-                self._producer.produce(topic, key, value)
+                self._producer.produce(topic, value, key)
             except confluent_kafka.KafkaException as e:
                 logger.error("Produce message failed: %s", str(e))
             except BufferError:

@@ -33,24 +33,26 @@ public class Injector {
     private final Long nbMessages;
     private final Long reportingInterval;
     private final List<String> topicNames;
+    private final Boolean useRandomKeys;
 
 
-    public Injector(Properties properties, List<String> topicNames, Long nbMessages, Short messageSize, Long reportingInterval) {
+    public Injector(Properties properties, List<String> topicNames, Long nbMessages, Short messageSize, Long reportingInterval, Boolean useRandomKeys) {
         this.properties = properties;
         this.messageSize = messageSize;
         this.reportingInterval = reportingInterval;
         this.topicNames = topicNames;
         this.nbMessages = nbMessages;
+        this.useRandomKeys = useRandomKeys;
     }
 
 
     public void start() {
-        logger.info("Running benchmark with {} topics {} messages of {} bytes each", topicNames.size(), nbMessages, messageSize);
+        logger.info("Running benchmark with {} topics {} messages of {} bytes each with random keys={}", topicNames.size(), nbMessages, messageSize, useRandomKeys);
         Random random = new Random();
 
         // Prepare a bunch of messages
         List<String> randomMessages = IntStream.range(0, 100)
-                            .mapToObj((e) -> RandomStringUtils.randomAlphabetic(10))
+                            .mapToObj((e) -> RandomStringUtils.randomAlphabetic(messageSize))
                             .collect(Collectors.toList());
         logger.info("" +randomMessages.size());
 
@@ -63,8 +65,9 @@ public class Injector {
 
             while (totalMsgs <= nbMessages) {
                 //simulate high cardinality in the key
-                String key = UUID.randomUUID().toString();
+                String key = useRandomKeys ? UUID.randomUUID().toString() : null;
                 String value = randomMessages.get(random.nextInt(randomMessages.size()));
+                //write sequentially into topics to make it deterministic
                 String topicName = topicNames.get((int)(totalMsgs % nbTopics));
 
                 ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);

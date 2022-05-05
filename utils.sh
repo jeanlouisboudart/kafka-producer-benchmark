@@ -5,7 +5,6 @@ PRODUCER_IMAGES=("java-producer" "python-producer")
 
 docker_compose_file=${1:-docker-compose-3-brokers.yml} 
 
-
 build_image() {
   folder=$(basename $1)
   imageName=${2:-$folder}
@@ -21,24 +20,28 @@ build_all_images() {
   done
 }
 
-create_network() {
+create_bench_network() {
   echo "Creating network for the bench"
   docker network create ${NETWORK_NAME}
 }
 
 init_docker_compose_bench_env() {
-  create_network
+  create_bench_network
   echo "Starting up "
   docker-compose -f ${docker_compose_file} up -d
   echo "Waiting for kafka to be up"
   sleep 10
 }
 
+stop_bench_network() {
+  echo "Destroying network"
+  docker network rm ${NETWORK_NAME}
+}
+
 stop_bench() {
   echo "Destroying environment"
   docker-compose -f ${docker_compose_file} down -v
-  echo "Destroying network"
-  docker network rm ${NETWORK_NAME}
+  stop_bench_network
 }
 
 run_container() {
@@ -51,7 +54,6 @@ run_bench_initializer() {
   envFile=$1
   run_container bench-initializer ${envFile}
 }
-
 
 run_scenario_with_results() {
   imageName=$1

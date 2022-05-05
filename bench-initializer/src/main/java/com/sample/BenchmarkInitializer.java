@@ -38,10 +38,11 @@ public class BenchmarkInitializer {
         final Integer numberOfPartitions = Integer.valueOf(System.getenv().getOrDefault("NUMBER_OF_PARTITIONS", "1"));
         final Short replicationFactor = Short.valueOf(System.getenv().getOrDefault("REPLICATION_FACTOR", "1"));
 
-        AdminClient adminClient = KafkaAdminClient.create(properties);
-        createTopics(adminClient, topicsNames, numberOfPartitions, replicationFactor);
+        try (AdminClient adminClient = KafkaAdminClient.create(properties)) {
+            createTopics(adminClient, topicsNames, numberOfPartitions, replicationFactor);
 
-        logger.info("All topics are initialized");
+            logger.info("All topics are initialized");
+        }
 
     }
 
@@ -71,17 +72,16 @@ public class BenchmarkInitializer {
     private void createTopics(AdminClient adminClient, List<String> topicsNames, Integer numberOfPartitions, Short replicationFactor) throws ExecutionException, InterruptedException {
         Set<String> existingTopics = adminClient.listTopics().names().get();
         logger.info("Existings topics: {}", existingTopics.toString());
-        topicsNames.stream()
+        List<String> topicsToCreate = topicsNames.stream()
                 .filter((topic) -> !existingTopics.contains(topic))
-                .forEach((topic) -> createTopic(adminClient, topic, numberOfPartitions, replicationFactor));
-    }
+                .collect(Collectors.toList());
 
-    private void createTopic(AdminClient adminClient, String topicName, Integer numberOfPartitions, Short replicationFactor) {
-
-        final NewTopic newTopic = new NewTopic(topicName, numberOfPartitions, replicationFactor);
+        List<NewTopic> newTopics = topicsToCreate.stream()
+                .map((topic) -> new NewTopic(topic, numberOfPartitions, replicationFactor))
+                .collect(Collectors.toList());
         try {
-            logger.info("Creating topic {}", topicName);
-            CreateTopicsResult topicsCreationResult = adminClient.createTopics(Collections.singleton(newTopic));
+            logger.info("Creating topics {}", topicsToCreate.toString());
+            CreateTopicsResult topicsCreationResult = adminClient.createTopics(newTopics);
             topicsCreationResult.all().get();
         } catch (ExecutionException e) {
             //silent ignore if topic already exists

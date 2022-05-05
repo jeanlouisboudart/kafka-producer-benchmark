@@ -64,10 +64,12 @@ Default variables are :
 * MESSAGE_SIZE=200
 * NB_MESSAGES=1000000
 * REPORTING_INTERVAL=1000
+Those variables should be used by all clients to makes things easier to configure, but each client implementation can have its own set of custom configuration variables.
 
 Convert KAFKA_XXX into lowercase by replacing "_" with dots.
 This will help to play with batch.size/linger.ms/etc...
 
+### Specs 
 By default each client implementation will need to capture metrics at regular interval (defined via REPORTING_INTERVAL).
 The should be logged using the following format to make things easier to compare: 
 ```java
@@ -82,3 +84,10 @@ Example:
 ```java
     logger.info("REPORT: Produced %s with %s ProduceRequest in %s", lastTotalMsgsMetric, lastRequestCount, str(timedelta(seconds=end_time - start_time)))
 ```
+
+### My client is ready, how can I plug it in the test suite ?
+Create a new folder at the root of the project
+Make sure you have a `Dockerfile` inside of it.
+
+Update the `PRODUCER_IMAGES` in `utils.sh` to reference your new client.
+This will be taken into account to build the image but also to start the scenarios.

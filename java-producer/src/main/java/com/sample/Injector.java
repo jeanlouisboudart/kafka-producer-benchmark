@@ -87,7 +87,6 @@ public class Injector {
 
     private void printMetrics(Producer<String, String> producer) {
         Map<MetricName, ? extends Metric> metrics = producer.metrics();
-        double totalMsgsMetric = producerMetric(metrics, "record-send-total");
         double avgSendRate = producerMetric(metrics, "record-send-rate");
         double queueTimeAvg = producerMetric(metrics, "record-queue-time-avg");
         double batchSizeAvg = producerMetric(metrics, "batch-size-avg");

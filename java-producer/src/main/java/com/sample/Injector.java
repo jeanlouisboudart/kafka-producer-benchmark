@@ -2,15 +2,18 @@ package com.sample;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -43,6 +46,13 @@ public class Injector {
 
     public void start() {
         logger.info("Running benchmark with {} topics {} messages of {} bytes each", topicNames.size(), nbMessages, messageSize);
+        Random random = new Random();
+
+        // Prepare a bunch of messages
+        List<String> randomMessages = IntStream.range(0, 100)
+                            .mapToObj((e) -> RandomStringUtils.randomAlphabetic(10))
+                            .collect(Collectors.toList());
+        logger.info("" +randomMessages.size());
 
         try (Producer<String, String> producer = new KafkaProducer<>(properties)) {
             Instant startTime = Instant.now();
@@ -54,7 +64,7 @@ public class Injector {
             while (totalMsgs <= nbMessages) {
                 //simulate high cardinality in the key
                 String key = UUID.randomUUID().toString();
-                String value = randomPayload(messageSize);
+                String value = randomMessages.get(random.nextInt(randomMessages.size()));
                 String topicName = topicNames.get((int)(totalMsgs % nbTopics));
 
                 ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
@@ -111,12 +121,6 @@ public class Injector {
         if (e != null) {
             logger.error("failed sending in " + record.topic() + " key: " + record.key(), e);
         }
-    }
-
-    private static String randomPayload(int size) {
-        char[] buf = new char[size];
-        Arrays.fill(buf, 'j');
-        return new String(buf);
     }
 
     private static double producerMetric(Map<MetricName, ? extends Metric> metrics, String metric) {

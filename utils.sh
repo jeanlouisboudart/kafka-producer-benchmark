@@ -3,6 +3,9 @@
 NETWORK_NAME=benchmark-producer-network
 PRODUCER_IMAGES=("java-producer" "python-producer")
 
+docker_compose_file=${1:-docker-compose-3-brokers.yml} 
+
+
 build_image() {
   folder=$(basename $1)
   imageName=${2:-$folder}
@@ -24,7 +27,6 @@ create_network() {
 }
 
 init_docker_compose_bench_env() {
-  docker_compose_file=${1:-docker-compose-3-brokers.yml} 
   create_network
   echo "Starting up "
   docker-compose -f ${docker_compose_file} up -d

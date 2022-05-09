@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class BenchmarkProducer {
 
@@ -24,17 +23,7 @@ public class BenchmarkProducer {
 
     public BenchmarkProducer() throws ExecutionException, InterruptedException {
         final Properties properties = buildProperties(defaultProps, System.getenv(), KAFKA_ENV_PREFIX);
-        final String topicPrefix = System.getenv().getOrDefault("TOPIC_PREFIX", "sample");
-        final Short messageSize = Short.valueOf(System.getenv().getOrDefault("MESSAGE_SIZE", "200"));
-        final Long reportingInterval = Long.valueOf(System.getenv().getOrDefault("REPORTING_INTERVAL", "1000"));
-        final Long numberOfMessages = Long.valueOf(System.getenv().getOrDefault("NB_MESSAGES", "1000000"));
-        final Boolean useRandomKeys = Boolean.valueOf(System.getenv().getOrDefault("USE_RANDOM_KEYS", "true")); 
-
-
-        final Short nbTopics = Short.valueOf(System.getenv().getOrDefault("NB_TOPICS", "1"));
-        final List<String> topicsNames = IntStream.range(0, nbTopics).mapToObj((e) -> topicPrefix + "_" + e).collect(Collectors.toList());
-
-        this.injector = new Injector(properties, topicsNames, numberOfMessages, messageSize, reportingInterval, useRandomKeys);
+        this.injector = new Injector(properties);
     }
 
     private void start() throws InterruptedException {

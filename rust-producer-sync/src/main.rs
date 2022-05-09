@@ -55,11 +55,15 @@ fn main() {
     }
     let elapsed = Utc::now() - start;
     let stats = stats_arc.lock().unwrap();
+    let seconds = elapsed.num_seconds();
     info!(
-        "REPORT: Produced {} with {} ProduceRequest in {}",
+        "REPORT: Produced {} with {} ProduceRequest in {:.2}:{:.2}:{:.2}.{:.3}",
         stats.nb_msgs_sent,
         stats.request_count,
-        elapsed.num_seconds()
+        seconds / 60 / 60,
+        seconds / 60 % 60,
+        seconds % 60,
+        elapsed.num_milliseconds() % (seconds * 1000)
     )
 }
 

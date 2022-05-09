@@ -62,13 +62,13 @@ fn benchmark_conf_from_env() -> BenchmarkConfig {
         conf.reporting_interval = u32::from_str(interval.as_str()).expect("REPORTING_INTERVAL env. variable doesn't seem to be a valid u32 integer")
     }
     if let Ok(nb_msg) = env::var("NB_MESSAGES") {
-        conf.reporting_interval = u32::from_str(nb_msg.as_str()).expect("NB_MESSAGES env. variable doesn't seem to be a valid u32 integer")
+        conf.number_of_messages = u32::from_str(nb_msg.as_str()).expect("NB_MESSAGES env. variable doesn't seem to be a valid u32 integer")
     }
     if let Ok(rnd_keys) = env::var("USE_RANDOM_KEYS") {
         conf.use_random_keys = bool::from_str(rnd_keys.as_str()).expect("REPORTING_INTERVAL env. variable doesn't seem to be a valid boolean value")
     }
     if let Ok(nb_topics) = env::var("NB_TOPICS") {
-        conf.message_size = usize::from_str(nb_topics.as_str()).expect("NB_TOPICS env. variable doesn't seem to be a valid usize integer")
+        conf.nb_topics = usize::from_str(nb_topics.as_str()).expect("NB_TOPICS env. variable doesn't seem to be a valid usize integer")
     }
     conf
 }

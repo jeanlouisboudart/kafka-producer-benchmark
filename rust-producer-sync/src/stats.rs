@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use log::info;
+use log::{error, info, warn};
 use rdkafka::{ClientContext, Statistics};
 use rdkafka::producer::{DeliveryResult, ProducerContext};
 
@@ -26,6 +26,10 @@ impl ClientContext for LoggingContext {
 
     fn stats(&self, stats: Statistics) {
         let current_nb_message_sent = stats.txmsgs;
+        if current_nb_message_sent == 0 {
+            info!("No messages sent, yet. No stats to publish");
+            return;
+        }
         let current_ts = stats.ts / 1000 / 1000; // we need to convert into seconds in order to compute rate per sec
         let topics_stats = stats.topics;
         let nb_topics = topics_stats.len();
@@ -38,7 +42,8 @@ impl ClientContext for LoggingContext {
         let brokers_stats = stats.brokers;
         let nb_brokers = brokers_stats.len() as i64;
         if nb_brokers == 0 {
-            // no message sent yet
+            // Avoiding dividing by 0
+            warn!("0 brokers in returned stats");
             return;
         }
 
@@ -94,5 +99,9 @@ impl ClientContext for LoggingContext {
 }
 impl ProducerContext for LoggingContext {
     type DeliveryOpaque = ();
-    fn delivery(&self, _: &DeliveryResult, _: Self::DeliveryOpaque) {}
+    fn delivery(&self, res: &DeliveryResult, _: Self::DeliveryOpaque) {
+        if let Err((err, _)) = res {
+            error!("Could not deliver message: {:?}", err)
+        }
+    }
 }

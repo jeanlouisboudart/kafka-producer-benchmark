@@ -37,17 +37,22 @@ impl ClientContext for LoggingContext {
 
         let brokers_stats = stats.brokers;
         let nb_brokers = brokers_stats.len() as i64;
+        if nb_brokers == 0 {
+            // no message sent yet
+            return;
+        }
+
         let queue_latency_total = brokers_stats
             .iter()
             .map(|(_, broker)| broker.int_latency.as_ref().map(|w| w.avg).unwrap_or(0))
             .sum::<i64>();
-        let queue_latency_avg = queue_latency_total / nb_brokers / 1000;
+        let queue_latency_avg = (queue_latency_total as f64) / (nb_brokers as f64) / 1000.0;
 
         let request_latency_total = brokers_stats
             .iter()
             .map(|(_, broker)| broker.rtt.as_ref().map(|w| w.avg).unwrap_or(0))
             .sum::<i64>();
-        let request_latency_avg = request_latency_total / nb_brokers / 1000;
+        let request_latency_avg = (request_latency_total as f64)/ (nb_brokers as f64) / 1000.0;
 
         let request_count_total = brokers_stats
             .iter()

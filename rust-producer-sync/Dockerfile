@@ -24,5 +24,6 @@ RUN cargo build --release --bin kafka-producer-benchmark-sync
 
 FROM rust as runtime
 WORKDIR app
-COPY --from=builder /app/target/release/kafka-producer-benchmark-sync /usr/local/bin
-ENTRYPOINT ["./usr/local/bin/kafka-producer-benchmark-sync"]
+COPY --from=builder /app/target/release/kafka-producer-benchmark-sync /usr/local/bin/
+ENV RUST_LOG=INFO
+ENTRYPOINT ["/usr/local/bin/kafka-producer-benchmark-sync"]

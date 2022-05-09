@@ -34,20 +34,31 @@ public class Injector {
     private final Long reportingInterval;
     private final List<String> topicNames;
     private final Boolean useRandomKeys;
+    private final Short aggregatePerTopicNbMessages;
 
 
-    public Injector(Properties properties, List<String> topicNames, Long nbMessages, Short messageSize, Long reportingInterval, Boolean useRandomKeys) {
+    public Injector(Properties properties) {
+        final String topicPrefix = System.getenv().getOrDefault("TOPIC_PREFIX", "sample");
+        this.messageSize = Short.valueOf(System.getenv().getOrDefault("MESSAGE_SIZE", "200"));
+        this.reportingInterval = Long.valueOf(System.getenv().getOrDefault("REPORTING_INTERVAL", "1000"));
+        this.nbMessages = Long.valueOf(System.getenv().getOrDefault("NB_MESSAGES", "1000000"));
+        this.useRandomKeys = Boolean.valueOf(System.getenv().getOrDefault("USE_RANDOM_KEYS", "true")); 
+
+        this.aggregatePerTopicNbMessages = Short.valueOf(System.getenv().getOrDefault("AGG_PER_TOPIC_NB_MESSAGES", "1"));
+
+        final Short nbTopics = Short.valueOf(System.getenv().getOrDefault("NB_TOPICS", "1"));
+        this.topicNames = IntStream.range(0, nbTopics).mapToObj((e) -> topicPrefix + "_" + e).collect(Collectors.toList());
+
         this.properties = properties;
-        this.messageSize = messageSize;
-        this.reportingInterval = reportingInterval;
-        this.topicNames = topicNames;
-        this.nbMessages = nbMessages;
-        this.useRandomKeys = useRandomKeys;
     }
 
 
     public void start() {
         logger.info("Running benchmark with {} topics {} messages of {} bytes each with random keys={}", topicNames.size(), nbMessages, messageSize, useRandomKeys);
+        if (aggregatePerTopicNbMessages > 1) {
+            logger.info("Will use grouping per topic and bulk send every {} messages", aggregatePerTopicNbMessages);
+        }
+        
         Random random = new Random();
 
         // Prepare a bunch of messages
@@ -61,23 +72,28 @@ public class Injector {
             Timer timer = configureMetricsCollector(producer);
             long totalMsgs = 0;
             int nbTopics = topicNames.size();
-            //Map<String, List<ProducerRecord>> toSend = new HashMap<>();
+            Map<String, List<ProducerRecord>> toSend = new HashMap<>();
 
             while (totalMsgs <= nbMessages) {
                 //simulate high cardinality in the key
                 String key = useRandomKeys ? UUID.randomUUID().toString() : null;
                 String value = randomMessages.get(random.nextInt(randomMessages.size()));
-                //write sequentially into topics to make it deterministic
+                //write sequentially into topics to make it deterministic and simulate load with high cardinality
                 String topicName = topicNames.get((int)(totalMsgs % nbTopics));
 
                 ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, value);
-                producer.send(record, (recordMetadata, exception) -> sendCallback(record, recordMetadata, exception));
-                /*
-                toSend.computeIfAbsent(topicName, k -> new ArrayList<>()).add(record);
-                if (totalMsgs % 1000 == 0) {
-                    toSend.values().forEach(perTopic -> perTopic.forEach(msg->producer.send(record, (recordMetadata, exception) -> sendCallback(record, recordMetadata, exception))));
+
+                if (aggregatePerTopicNbMessages > 1) {
+                    //This will just pre-buffer on a per topic basis and flush every N messages
+                    toSend.computeIfAbsent(topicName, k -> new ArrayList<>()).add(record);
+                    if (totalMsgs % aggregatePerTopicNbMessages == 0) {
+                        toSend.values().forEach(perTopic -> perTopic.forEach(msg->producer.send(record, (recordMetadata, exception) -> sendCallback(record, recordMetadata, exception))));
+                        toSend.clear();
+                    }
+                } else {
+                    producer.send(record, (recordMetadata, exception) -> sendCallback(record, recordMetadata, exception));
                 }
-                */
+                
                 totalMsgs++;
 
             }

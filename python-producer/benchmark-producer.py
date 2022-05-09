@@ -30,7 +30,11 @@ def main():
     nbTopics = int(os.getenv("NB_TOPICS", "1"))
     useKeys = os.getenv("USE_RANDOM_KEYS", "true") == "true"
     
+    aggregatePerTopicNbMessages = int(os.getenv("AGG_PER_TOPIC_NB_MESSAGES", "1"))
+
     logger.info("Running benchmark with %s topics %s messages of %s bytes each with random keys=%s", nbTopics, nbMessages, messageSize, useKeys)
+    if aggregatePerTopicNbMessages > 1: 
+        logger.info("Will use grouping per topic and bulk send every %s messages", aggregatePerTopicNbMessages)
 
     producer_props = {
         "bootstrap.servers": "localhost:9092",
@@ -61,14 +65,27 @@ def main():
         start_time = time.monotonic()
 
         totalMsgs= 0
-
+        toSend = {}
         for _ in range(nbMessages):
+            # write sequentially into topics to make it deterministic and simulate load with high cardinality
             topic = topicPrefix + "_" +str(totalMsgs % nbTopics)
             key = str(uuid.uuid4()) if useKeys else None
             value = random.choice(events)
 
-            producer.produce(topic, key, value)
-            
+            if aggregatePerTopicNbMessages > 1: 
+                # This will just pre-buffer on a per topic basis and flush every N messages
+                if topic not in toSend:
+                    toSend[topic] = []
+                toSend[topic].append({"topic": topic, "key": key, "value": value})    
+
+                if totalMsgs % aggregatePerTopicNbMessages == 0:
+                    for topic, messages in toSend.items():
+                        for record in messages:
+                            producer.produce(record.get("topic"), record.get("key"), record.get("value"))
+                    toSend = {}
+            else:
+                producer.produce(topic, key, value)    
+
             #if totalMsgs % reportingInterval == 0:
             #    producer.flush()
             totalMsgs+=1

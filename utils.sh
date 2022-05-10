@@ -22,7 +22,7 @@ build_all_images() {
 
 create_bench_network() {
   echo "Creating network for the bench"
-  docker network create ${NETWORK_NAME}
+  docker network create ${NETWORK_NAME} || true
 }
 
 init_docker_compose_bench_env() {

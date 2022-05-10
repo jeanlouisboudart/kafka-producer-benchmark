@@ -80,7 +80,7 @@ public class BenchmarkInitializer {
                 .map((topic) -> new NewTopic(topic, numberOfPartitions, replicationFactor))
                 .collect(Collectors.toList());
         try {
-            logger.info("Creating topics {}", topicsToCreate.toString());
+            logger.info("Creating topics {} with {} partions and replication factor {}", topicsToCreate.toString(), numberOfPartitions, replicationFactor);
             CreateTopicsResult topicsCreationResult = adminClient.createTopics(newTopics);
             topicsCreationResult.all().get();
         } catch (ExecutionException e) {

@@ -33,7 +33,7 @@ public class BenchmarkInitializer {
         final String topicPrefix = System.getenv().getOrDefault("TOPIC_PREFIX", "sample");
 
         final Short nbTopics = Short.valueOf(System.getenv().getOrDefault("NB_TOPICS", "1"));
-        final List<String> topicsNames = IntStream.range(1, nbTopics).mapToObj((e) -> topicPrefix + "_" + e).collect(Collectors.toList());
+        final List<String> topicsNames = IntStream.range(0, nbTopics).mapToObj((e) -> topicPrefix + "_" + e).collect(Collectors.toList());
 
         final Integer numberOfPartitions = Integer.valueOf(System.getenv().getOrDefault("NUMBER_OF_PARTITIONS", "1"));
         final Short replicationFactor = Short.valueOf(System.getenv().getOrDefault("REPLICATION_FACTOR", "1"));

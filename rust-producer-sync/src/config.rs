@@ -8,7 +8,7 @@ pub(crate) struct BenchmarkConfig {
     pub(crate) topic_prefix: String,
     pub(crate) message_size: usize,
     pub(crate) reporting_interval: u32,
-    pub(crate) number_of_messages: u32,
+    pub(crate) number_of_messages: usize,
     pub(crate) use_random_keys: bool,
     pub(crate) nb_topics: usize,
     pub(crate) agg_per_topic_buffer_size: usize,
@@ -19,8 +19,8 @@ impl BenchmarkConfig {
         BenchmarkConfig {
             topic_prefix: "sample".to_string(),
             message_size: 200,
-            reporting_interval: 1000,
-            number_of_messages: 1000000,
+            reporting_interval: 1_000,
+            number_of_messages: 1_000_000,
             use_random_keys: true,
             nb_topics: 1,
             agg_per_topic_buffer_size: 1,
@@ -55,22 +55,22 @@ fn kafka_conf_from_env() -> ClientConfig {
 fn benchmark_conf_from_env() -> BenchmarkConfig {
     let mut conf = BenchmarkConfig::default();
     if let Ok(prefix) = env::var("TOPIC_PREFIX") {
-        conf.topic_prefix = prefix
+        conf.topic_prefix = prefix;
     }
     if let Ok(msg_size) = env::var("MESSAGE_SIZE") {
-        conf.message_size = usize::from_str(msg_size.as_str()).expect("MESSAGE_SIZE env. variable doesn't seem to be a valid usize integer")
+        conf.message_size = usize::from_str(msg_size.as_str()).expect("MESSAGE_SIZE env. variable doesn't seem to be a valid usize integer");
     }
     if let Ok(interval) = env::var("REPORTING_INTERVAL") {
-        conf.reporting_interval = u32::from_str(interval.as_str()).expect("REPORTING_INTERVAL env. variable doesn't seem to be a valid u32 integer")
+        conf.reporting_interval = u32::from_str(interval.as_str()).expect("REPORTING_INTERVAL env. variable doesn't seem to be a valid u32 integer");
     }
     if let Ok(nb_msg) = env::var("NB_MESSAGES") {
-        conf.number_of_messages = u32::from_str(nb_msg.as_str()).expect("NB_MESSAGES env. variable doesn't seem to be a valid u32 integer")
+        conf.number_of_messages = usize::from_str(nb_msg.as_str()).expect("NB_MESSAGES env. variable doesn't seem to be a valid usize integer");
     }
     if let Ok(rnd_keys) = env::var("USE_RANDOM_KEYS") {
-        conf.use_random_keys = bool::from_str(rnd_keys.as_str()).expect("REPORTING_INTERVAL env. variable doesn't seem to be a valid boolean value")
+        conf.use_random_keys = bool::from_str(rnd_keys.as_str()).expect("REPORTING_INTERVAL env. variable doesn't seem to be a valid boolean value");
     }
     if let Ok(nb_topics) = env::var("NB_TOPICS") {
-        conf.nb_topics = usize::from_str(nb_topics.as_str()).expect("NB_TOPICS env. variable doesn't seem to be a valid usize integer")
+        conf.nb_topics = usize::from_str(nb_topics.as_str()).expect("NB_TOPICS env. variable doesn't seem to be a valid usize integer");
     }
     if let Ok(nb_msgs_aggd_per_topic) = env::var("AGG_PER_TOPIC_NB_MESSAGES") {
         conf.agg_per_topic_buffer_size = usize::from_str(nb_msgs_aggd_per_topic.as_str()).expect("AGG_PER_TOPIC_NB_MESSAGES doesn't seem to be a valid usize integer");

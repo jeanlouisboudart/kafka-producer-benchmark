@@ -11,6 +11,7 @@ pub(crate) struct BenchmarkConfig {
     pub(crate) number_of_messages: u32,
     pub(crate) use_random_keys: bool,
     pub(crate) nb_topics: usize,
+    pub(crate) agg_per_topic_buffer_size: usize,
 }
 
 impl BenchmarkConfig {
@@ -21,7 +22,8 @@ impl BenchmarkConfig {
             reporting_interval: 1000,
             number_of_messages: 1000000,
             use_random_keys: true,
-            nb_topics: 1
+            nb_topics: 1,
+            agg_per_topic_buffer_size: 1,
         }
     }
 
@@ -69,6 +71,9 @@ fn benchmark_conf_from_env() -> BenchmarkConfig {
     }
     if let Ok(nb_topics) = env::var("NB_TOPICS") {
         conf.nb_topics = usize::from_str(nb_topics.as_str()).expect("NB_TOPICS env. variable doesn't seem to be a valid usize integer")
+    }
+    if let Ok(nb_msgs_aggd_per_topic) = env::var("AGG_PER_TOPIC_NB_MESSAGES") {
+        conf.agg_per_topic_buffer_size = usize::from_str(nb_msgs_aggd_per_topic.as_str()).expect("AGG_PER_TOPIC_NB_MESSAGES doesn't seem to be a valid usize integer");
     }
     conf
 }

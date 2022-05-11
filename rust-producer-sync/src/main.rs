@@ -91,8 +91,8 @@ fn main() {
             }
         }
     }
-    if benchmark_conf.agg_per_topic_buffer_size > 1 { // drain the per-topic buffer one last time
-        info!("Draining the 'per-topic' buffer ({} msgs)", buffer.count);
+    if benchmark_conf.agg_per_topic_buffer_size > 1 && buffer.count > 0 { // drain the per-topic buffer one last time
+        info!("Draining the 'per-topic' buffer. {} msgs left in buffer. {} already sent", buffer.count, records_sent);
         for (topic, (key, value)) in buffer.force_drain() {
             send_until_ok(&producer, &topic, &key, &value);
             records_sent += 1;

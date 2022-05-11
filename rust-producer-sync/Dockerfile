@@ -1,30 +1,28 @@
-FROM rust as planner
+FROM lukemathwalker/cargo-chef:latest-rust-1.60-bullseye AS chef
 WORKDIR app
-# We only pay the installation cost once,
-# it will be cached from the second build onwards
-RUN cargo install cargo-chef
-COPY . .
-RUN cargo chef prepare  --recipe-path recipe.json
 
-FROM rust as cacher
-WORKDIR app
-RUN apt-get update
-RUN apt-get install -y cmake
-RUN apt-get install -y libssl-dev
-RUN cargo install cargo-chef
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN apt update
+RUN apt install -y cmake
+RUN apt install -y libssl-dev
 RUN cargo chef cook --release --recipe-path recipe.json
-
-FROM rust as builder
-WORKDIR app
+# Build application
 COPY . .
-# Copy over the cached dependencies
-COPY --from=cacher /app/target target
 RUN cargo build --release --bin kafka-producer-benchmark-sync
 
-FROM rust as runtime
+# We do not need the Rust toolchain to run the binary!
+FROM debian:bullseye-slim AS runtime
 WORKDIR app
-COPY --from=builder /app/target/release/kafka-producer-benchmark-sync /usr/local/bin/
+#RUN apt update
+#RUN apt install -y libssl-dev
+#RUN apt install -y libc6
+COPY --from=builder /app/target/release/kafka-producer-benchmark-sync /usr/local/bin
 #ENV KAFKA_DEBUG="broker,topic,msg"
 #ENV RUST_LOG="debug,librdkafka=debug,rdkafka::client=debug"
 ENV RUST_LOG=info

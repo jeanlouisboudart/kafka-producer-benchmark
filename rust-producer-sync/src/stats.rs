@@ -3,7 +3,8 @@ use log::{error, info, warn};
 use rdkafka::{ClientContext, Statistics};
 use rdkafka::producer::{DeliveryResult, ProducerContext};
 use rdkafka::statistics::Window;
-use crate::utils::{AsF64Lossy, avg_by, Avgf64, sum_by};
+use crate::utils::conversion_utils::AsF64Lossy;
+use crate::utils::collection_utils::{avg_by, Avgf64, sum_by};
 
 #[derive(Debug, Default)]
 pub(crate) struct StatsCheckpoint {

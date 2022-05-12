@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use chrono::Utc;
+use itertools::Itertools;
 use log::{debug, error, info};
 use rand::prelude::SliceRandom;
 use rdkafka::error::{KafkaError, RDKafkaErrorCode};
@@ -66,6 +67,15 @@ fn main() {
     env_logger::init();
     let mut rng = rand::thread_rng();
     let (kafka_conf, benchmark_conf) = config::conf_from_env();
+    unsafe {
+        let config_str: String = utils::kafka_utils::conf_dump(&kafka_conf)
+            .unwrap()
+            .iter()
+            .map(|(k, v)| format!("\t{k}={v}\n"))
+            .sorted()
+            .collect();
+        info!("ClientConfig values: \n {config_str}");
+    }
     let mut records_sent = 0;
     let msgs = random_messages::<100>(benchmark_conf.message_size);
     let topic_names = benchmark_conf.topic_names();

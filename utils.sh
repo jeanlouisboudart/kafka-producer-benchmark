@@ -61,14 +61,17 @@ run_scenario_with_results() {
   echo "Running ${scenario} with ${imageName}"
   resultsFile=results/${scenario}/${imageName}.txt
   mkdir -p $(dirname ${resultsFile})
-  run_container $1 $2 > $resultsFile 2>&1
+  run_container ${imageName} ${scenario} > $resultsFile 2>&1 || echo "Start of container ${imageName} failed check output logs !"
+  
   echo "Results of the scenario dumped in ${resultsFile}"
-  grep "REPORT" ${resultsFile}
+  grep "REPORT" ${resultsFile} || true
 }
 
 run_scenario() {
   scenario=$1
-  run_bench_initializer ${scenario}
+  echo "Executing ${scenario} with the following characteristics"
+  cat ${scenario}
+  run_scenario_with_results bench-initializer ${scenario}
   for producer_image in ${PRODUCER_IMAGES[@]}
   do
     run_scenario_with_results ${producer_image} ${scenario}

@@ -160,7 +160,7 @@ class Producer:
     def produce(self, topic, key, value):
         while True:
             try:
-                self._producer.produce(topic, value, key)
+                self._producer.produce(topic=topic, key=key, value=value, on_delivery=self.delivery_report)
             except confluent_kafka.KafkaException as e:
                 logger.error("Produce message failed: %s", str(e))
             except BufferError:
@@ -169,6 +169,10 @@ class Producer:
                 continue
             break
         self._producer.poll(0)
+
+    def delivery_report(self, err, msg):
+        if err is not None:
+            logger.error("Delivery failed for key {}: {}", msg.key(), err)
 
     def flush(self):
         self._producer.flush()

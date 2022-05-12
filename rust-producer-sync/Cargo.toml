@@ -1,0 +1,21 @@
+[package]
+name = "kafka-producer-benchmark-sync"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4"
+# Kafka
+rdkafka = { version = "0.28", features = ["cmake-build", "ssl"] }
+rdkafka-sys = "4.2.0"
+random-string = "1.0"
+rand = "0.8"
+# futures = "0.3"
+# Main
+itertools = "0.10"
+# tokio = { version = "1", features = ["full"] }
+log = "0.4"
+env_logger = "0.9"
+uuid = { version = "0.8.2", features = ["v4"] }

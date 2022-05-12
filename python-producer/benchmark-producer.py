@@ -10,6 +10,11 @@ from datetime import timedelta
 from random import randrange
 from threading import Thread
 
+from uuid import UUID
+
+def uuid4_fast():
+    return UUID(int=random.getrandbits(128), version=4)
+
 lastRequestCount = 0
 lastTotalMsgsMetric = 0
 lastMetricCollectionTimestamp = 0
@@ -69,7 +74,7 @@ def main():
         for _ in range(nbMessages):
             # write sequentially into topics to make it deterministic and simulate load with high cardinality
             topic = topicPrefix + "_" +str(totalMsgs % nbTopics)
-            key = str(uuid.uuid4()) if useKeys else None
+            key = str(uuid4_fast) if useKeys else None
             value = random.choice(events)
 
             if aggregatePerTopicNbMessages > 1: 

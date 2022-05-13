@@ -74,7 +74,7 @@ def main():
         for _ in range(nbMessages):
             # write sequentially into topics to make it deterministic and simulate load with high cardinality
             topic = topicPrefix + "_" +str(totalMsgs % nbTopics)
-            key = str(uuid4_fast) if useKeys else None
+            key = str(uuid4_fast()) if useKeys else None    
             value = random.choice(events)
 
             if aggregatePerTopicNbMessages > 1: 

@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,9 +63,14 @@ public class Injector {
         Random random = new Random();
 
         // Prepare a bunch of messages
-        List<String> randomMessages = IntStream.range(0, 100)
+        int nbFakeData = topicNames.size() * 1000;
+        List<String> randomMessages = IntStream.range(0, nbFakeData)
                             .mapToObj((e) -> RandomStringUtils.randomAlphabetic(messageSize))
                             .collect(Collectors.toList());
+        List<String> randomKeys = IntStream.range(0, nbFakeData)
+                            .mapToObj((e) -> UUID.randomUUID().toString())
+                            .collect(Collectors.toList());
+
         logger.info("" +randomMessages.size());
 
         try (Producer<String, String> producer = new KafkaProducer<>(properties)) {
@@ -76,8 +82,8 @@ public class Injector {
 
             while (totalMsgs <= nbMessages) {
                 //simulate high cardinality in the key
-                String key = useRandomKeys ? UUID.randomUUID().toString() : null;
-                String value = randomMessages.get(random.nextInt(randomMessages.size()));
+                String key = useRandomKeys ? randomKeys.get((int)totalMsgs % nbFakeData) : null;
+                String value = randomMessages.get((int)totalMsgs % nbFakeData);
                 //write sequentially into topics to make it deterministic and simulate load with high cardinality
                 String topicName = topicNames.get((int)(totalMsgs % nbTopics));
 

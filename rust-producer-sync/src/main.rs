@@ -78,7 +78,7 @@ fn main() {
     let topic_names = benchmark_conf.topic_names();
     let nb_topics = topic_names.len();
 
-    let nb_msgs_to_prep = 100 * nb_topics;
+    let nb_msgs_to_prep = 1_000 * nb_topics;
     let msgs = random_messages(nb_msgs_to_prep, benchmark_conf.message_size);
     let keys = random_keys(nb_msgs_to_prep);
 

@@ -4,7 +4,6 @@ use std::time::Duration;
 use chrono::Utc;
 use itertools::Itertools;
 use log::{debug, error, info};
-use rand::prelude::SliceRandom;
 use rdkafka::error::{KafkaError, RDKafkaErrorCode};
 use rdkafka::message::ToBytes;
 use rdkafka::producer::{BaseProducer, BaseRecord, Producer};
@@ -65,7 +64,6 @@ impl<K: Clone, V: Clone> RecordBuffer<K, V> {
 
 fn main() {
     env_logger::init();
-    let mut rng = rand::thread_rng();
     let (kafka_conf, benchmark_conf) = config::conf_from_env();
     unsafe {
         let config_str: String = utils::kafka_utils::conf_dump(&kafka_conf)
@@ -77,8 +75,13 @@ fn main() {
         info!("ClientConfig values: \n {config_str}");
     }
     let mut records_sent = 0;
-    let msgs = random_messages::<100>(benchmark_conf.message_size);
     let topic_names = benchmark_conf.topic_names();
+    let nb_topics = topic_names.len();
+
+    let nb_msgs_to_prep = 1_000 * nb_topics;
+    let msgs = random_messages(nb_msgs_to_prep, benchmark_conf.message_size);
+    let keys = random_keys(nb_msgs_to_prep);
+
     let stats_arc = Arc::new(Mutex::new(StatsCheckpoint::default()));
     let stats = LoggingContext::new(stats_arc.clone());
     let producer: BaseProducer<LoggingContext> = kafka_conf
@@ -88,8 +91,12 @@ fn main() {
     let start = Utc::now();
     while records_sent < benchmark_conf.number_of_messages {
         let topic = topic_names.get((records_sent % benchmark_conf.nb_topics) as usize).unwrap();
-        let payload = msgs.choose(&mut rng).unwrap();
-        let k = benchmark_conf.use_random_keys.then(|| Uuid::new_v4().to_hyphenated().to_string());
+        let payload = msgs.get(records_sent % nb_msgs_to_prep).unwrap();
+        let k = if benchmark_conf.use_random_keys {
+            keys.get(records_sent % nb_msgs_to_prep).map(String::clone)
+        } else {
+            None
+        };
         if benchmark_conf.agg_per_topic_buffer_size <= 1 {
             send_until_ok(&producer, topic, &k, &payload);
             records_sent+= 1;
@@ -154,8 +161,12 @@ fn send_until_ok<'a, K: ToBytes, V: ToBytes>(
     producer.poll(Duration::from_secs(0));
 }
 
-fn random_messages<const NB: usize>(msg_size: usize) -> [String;NB] {
-    [msg_size; NB].map(random_msg)
+fn random_messages(nb: usize, msg_size: usize) -> Vec<String> {
+    (0..nb).map(|_| random_msg(msg_size)).collect()
+}
+
+fn random_keys(nb: usize) -> Vec<String> {
+    (0..nb).map(|_| Uuid::new_v4().to_hyphenated().to_string()).collect()
 }
 
 fn random_msg(msg_size: usize) -> String {

@@ -62,10 +62,13 @@ def main():
         letters = string.ascii_letters
 
         # Preparing a collection of random events
-        for _ in range(100):
+        nbFakeData = nbTopics * 1000
+        for _ in range(nbFakeData):
             message = ''.join(random.choice(letters) for _ in range(messageSize))
             events.append(message)
 
+        uuids = [str(uuid4_fast()) for _ in range(nbFakeData)]
+        
         # Producing random events to Kafka
         start_time = time.monotonic()
 
@@ -74,8 +77,8 @@ def main():
         for _ in range(nbMessages):
             # write sequentially into topics to make it deterministic and simulate load with high cardinality
             topic = topicPrefix + "_" +str(totalMsgs % nbTopics)
-            key = str(uuid4_fast) if useKeys else None
-            value = random.choice(events)
+            key = uuids[totalMsgs % nbFakeData] if useKeys else None    
+            value = events[totalMsgs % nbFakeData]
 
             if aggregatePerTopicNbMessages > 1: 
                 # This will just pre-buffer on a per topic basis and flush every N messages

@@ -13,6 +13,7 @@ use crate::stats::{LoggingContext, StatsCheckpoint};
 pub(crate) mod config;
 pub(crate) mod stats;
 pub(crate) mod utils;
+pub(crate) mod gen;
 
 const CHARSET: &str = "abcdefghijklmnopqrstuvwxyz0123456789";
 

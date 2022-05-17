@@ -3,7 +3,7 @@
 NETWORK_NAME=benchmark-producer-network
 PRODUCER_IMAGES=("java-producer" "python-producer" "dotnet-producer" "rust-producer-sync")
 
-docker_compose_file=${docker_compose_file:-docker-compose-3-brokers.yml} 
+docker_compose_file=${docker_compose_file:-docker-compose-3-brokers.yml}
 
 build_image() {
   folder=$(basename $1)

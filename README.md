@@ -35,6 +35,14 @@ To run a scenario use the following command :
 
 Execution logs will be dumped in `./target/scenario-<description>.env/<client-name>.txt`.
 
+## Running with a custom `docker-compose` file
+
+Just set `docker_compose_file=...` variable in the shell you're running `run-scenario` from.
+For instance: 
+```
+docker_compose_file=docker-compose-kraft-3-brokers.yml;./run-scenario.sh <myscenario>.env
+```
+
 # How to contribute ?
 Have any idea to make this benchmark better ? Found a bug ?
 Do not hesitate to report us via github issues and/or create a pull request.
@@ -53,6 +61,7 @@ You can override any producer configuration available in the clients by using th
 
 ## Adding a new client ?
 We strongly recommend you to run your test against localhost:9092 you can leverage the default `docker-compose.yml` to have a development environment.
+If interested in experimenting with KIP-500, you can run your implementation locally against `docker compose -f docker-compose-kraft.yml` (1 single node acting as both controller and broker).
 
 Make everything configurable via environment variable.
 

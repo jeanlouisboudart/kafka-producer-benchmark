@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 class ProducerBenchmark {
+
+    private static ILogger logger = Logger.GetLogger(typeof(ProducerBenchmark));
 
     private readonly short messageSize;
     private readonly long reportingInterval;
@@ -25,9 +28,9 @@ class ProducerBenchmark {
         aggregatePerTopicNbMessages = Convert.ToInt16(Utils.GetEnvironmentVariable("AGG_PER_TOPIC_NB_MESSAGES", "1"));
         short nbTopics = Convert.ToInt16(Utils.GetEnvironmentVariable("NB_TOPICS", "1"));
         topicNames = Enumerable.Range(0, nbTopics).Select(x => topicPrefix + "_" + x).ToList();
-        Console.WriteLine($"Running benchmark with {topicNames.Count()} topics {nbMessages} messages of {messageSize} bytes each with random keys={useRandomKeys}");
+        logger.LogInformation("Running benchmark with {topicNames} topics {nbMessages} messages of {messageSize} bytes each with random keys={useRandomKeys}",topicNames.Count(),nbMessages,messageSize,useRandomKeys);
         if (aggregatePerTopicNbMessages > 1) {
-             Console.WriteLine($"Will use grouping per topic and bulk send every {aggregatePerTopicNbMessages} messages");
+             logger.LogInformation("Will use grouping per topic and bulk send every {aggregatePerTopicNbMessages} messages",aggregatePerTopicNbMessages);
         }
 
     }
@@ -59,7 +62,7 @@ class ProducerBenchmark {
             timer.Stop();
             TimeSpan duration = timer.Elapsed;
             string durationAsString = String.Format("{0:00}:{1:00}:{2:00}.{3}", duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds);
-            Console.WriteLine($"REPORT: Produced {producer.lastTotalMsgsMetric} with {producer.lastRequestCount} ProduceRequests in {durationAsString}");
+            logger.LogInformation("REPORT: Produced {lastTotalMsgsMetric} with {lastRequestCount} ProduceRequests in {durationAsString}",producer.lastMetricCollectionTimestamp,producer.lastRequestCount,durationAsString);
 
         }
     }

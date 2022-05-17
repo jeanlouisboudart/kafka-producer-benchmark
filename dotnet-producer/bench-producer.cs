@@ -5,9 +5,11 @@ using System.Collections;
 using System.Linq;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
-
+using Microsoft.Extensions.Logging;
 
 class BenchProducer<K,V>: IDisposable {
+
+    private static ILogger logger = Logger.GetLogger(typeof(BenchProducer<K,V>));
 
     private readonly Confluent.Kafka.IProducer<K,V> producer;
 
@@ -32,9 +34,11 @@ class BenchProducer<K,V>: IDisposable {
                 
             } catch (ProduceException<K, V> e) {
                 if (e.Error.Code == ErrorCode.Local_QueueFull) {
+                    logger.LogDebug("Produce message queue full, waiting for deliveries");
                     producer.Poll(TimeSpan.FromMilliseconds(500));
                     continue;
                 } else {
+                    logger.LogError(e, "Produce message failed for message with {key}", key);
                     throw;
                 }
 
@@ -47,7 +51,7 @@ class BenchProducer<K,V>: IDisposable {
 
     private void handleDeliveryReport(DeliveryReport<K,V> deliveryReport) {
         if (deliveryReport.Error.Code != ErrorCode.NoError) {
-            Console.WriteLine($"Failed to deliver message: {deliveryReport.Error.Reason}");
+            logger.LogError("Failed to deliver message: {error}", deliveryReport.Error.Reason);
         }
     }
 
@@ -93,10 +97,10 @@ private void handleStats(string jsonAsString) {
             lastMetricCollectionTimestamp = currentTs;
             lastTotalMsgsMetric = currentNbMessageSent;
             lastRequestCount = requestCount;
-            Console.WriteLine($"Sent rate = {nbMessageSentPerSec}/sec, duration spent in queue = {queueTimeAvg}ms, batch size = {batchSizeAvg}, request rate = {requestRate}/sec, request latency avg = {requestLatencyAvg}ms, records per ProduceRequest = {recordsPerRequestAvg}");
+            logger.LogInformation("Sent rate = {nbMessageSentPerSec}/sec, duration spent in queue = {queueTimeAvg}ms, batch size = {batchSizeAvg}, request rate = {requestRate}/sec, request latency avg = {requestLatencyAvg}ms, records per ProduceRequest = {recordsPerRequestAvg}", nbMessageSentPerSec, queueTimeAvg, batchSizeAvg, requestRate, requestLatencyAvg, recordsPerRequestAvg);
 
         } catch (Exception e) {
-            Console.WriteLine("Something wrong occured while processing statistics :" + e);
+            logger.LogError(e, "Something wrong occured while processing statistics");
         }
 
     }

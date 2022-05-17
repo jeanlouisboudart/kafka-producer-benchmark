@@ -12,7 +12,9 @@ class ProducerBenchmark {
     private readonly long nbMessages;
     private readonly bool useRandomKeys;
     private readonly short aggregatePerTopicNbMessages;
-    private readonly List<string> topicNames;
+    private readonly IList<string> topicNames;
+
+    private const string KAFKA_PREFIX="KAFKA_";
     public ProducerBenchmark() {
         string topicPrefix = Utils.GetEnvironmentVariable("TOPIC_PREFIX","sample");
         messageSize = Convert.ToInt16(Utils.GetEnvironmentVariable("MESSAGE_SIZE", "200"));
@@ -34,10 +36,10 @@ class ProducerBenchmark {
 
         // Prepare a bunch of messages
         int nbFakeData = topicNames.Count() * 1000;
-        List<String> randomMessages = Enumerable.Range(0, nbFakeData)
+        IList<String> randomMessages = Enumerable.Range(0, nbFakeData)
                             .Select(x => Utils.RandomString(messageSize))
                             .ToList();
-        List<String> randomKeys = Enumerable.Range(0, nbFakeData)
+        IList<String> randomKeys = Enumerable.Range(0, nbFakeData)
                             .Select(x => Guid.NewGuid().ToString())
                             .ToList();
 
@@ -46,17 +48,17 @@ class ProducerBenchmark {
         using (var producer = new BenchProducer<string,string>(buildProperties())) {
             var totalMsgs = 0;
             for (int i = 0; i < nbMessages; ++i) {
-                String key = useRandomKeys ? randomKeys[totalMsgs % nbFakeData] : null;
-                String value = randomMessages[totalMsgs % nbFakeData];
+                string key = useRandomKeys ? randomKeys[totalMsgs % nbFakeData] : null;
+                string value = randomMessages[totalMsgs % nbFakeData];
                 //write sequentially into topics to make it deterministic and simulate load with high cardinality
-                String topicName = topicNames[totalMsgs % topicNames.Count];
+                string topicName = topicNames[totalMsgs % topicNames.Count];
                 producer.produce(topicName,key,value);
                 totalMsgs++;
             }
             producer.Flush();
             timer.Stop();
             TimeSpan duration = timer.Elapsed;
-            String durationAsString = String.Format("{0:00}:{1:00}:{2:00}.{3}", duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds);
+            string durationAsString = String.Format("{0:00}:{1:00}:{2:00}.{3}", duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds);
             Console.WriteLine($"REPORT: Produced {producer.lastTotalMsgsMetric} with {producer.lastRequestCount} ProduceRequests in {durationAsString}");
 
         }
@@ -65,8 +67,8 @@ class ProducerBenchmark {
     private ProducerConfig buildProperties() {
         var map = new Dictionary<string,string>();
         foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables()) {
-            if (entry.Key.ToString().StartsWith("KAFKA")) {
-                var k = entry.Key.ToString().ToLower().Replace("kafka_","").Replace("_",".");
+            if (entry.Key.ToString().StartsWith(KAFKA_PREFIX)) {
+                var k = entry.Key.ToString().Replace(KAFKA_PREFIX,"").ToLower().Replace("_",".");
                 map.Add(k, entry.Value.ToString());
             }
         }

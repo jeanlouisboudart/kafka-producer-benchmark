@@ -21,7 +21,7 @@ class BenchProducer<K,V>: IDisposable {
             .Build();
     }
 
-    public void produce(String topicName, K key, V value) {
+    public void produce(string topicName, K key, V value) {
         while (true) {
             try {
                 producer.Produce(
@@ -30,7 +30,7 @@ class BenchProducer<K,V>: IDisposable {
                             (deliveryReport) => handleDeliveryReport(deliveryReport)
                 );
                 
-            } catch (ProduceException<String, String> e) {
+            } catch (ProduceException<K, V> e) {
                 if (e.Error.Code == ErrorCode.Local_QueueFull) {
                     producer.Poll(TimeSpan.FromMilliseconds(500));
                     continue;
@@ -51,7 +51,7 @@ class BenchProducer<K,V>: IDisposable {
         }
     }
 
-private void handleStats(String jsonAsString) {
+private void handleStats(string jsonAsString) {
         var stats = JObject.Parse(jsonAsString);
 
         long currentNbMessageSent = (long)stats["txmsgs"];

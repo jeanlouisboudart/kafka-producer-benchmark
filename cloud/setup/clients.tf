@@ -1,18 +1,5 @@
-resource "confluent_kafka_cluster" "perf-test-dedicated" {
-  display_name = "Producer Perf Test"
-  availability = "SINGLE_ZONE"
-  cloud        = "GCP"
-  region       = "europe-west1"
-  dedicated {
-    cku = 1
-  }
-  environment {
-    id = var.confluent_environment_id
-  }
-}
-
-// 'app-manager' service account is required in this configuration to create 'orders' topic and grant ACLs
-// to 'app-producer' and 'app-consumer' service accounts.
+// 'app-manager' service account is required in this configuration to create every topic and grant ACLs
+// to 'app-client' SA
 resource "confluent_service_account" "app-manager" {
   display_name = "app-manager"
   description  = "Service account to manage 'Producer Perf Test' Kafka cluster"

@@ -18,6 +18,6 @@ output "resource-ids" {
   # 2. Produce key-value records to topic XXX by using ${confluent_service_account.perf-test-client.display_name}'s Kafka API Key
   $ confluent kafka topic produce XXX --environment ${var.confluent_environment_id} --cluster ${confluent_kafka_cluster.perf-test-dedicated.id} --api-key "${confluent_api_key.perf-test-client-api-key.id}" --api-secret "${confluent_api_key.perf-test-client-api-key.secret}"
   # Enter a few records and then press 'Ctrl-C' when you're done.
-
   EOT
+  sensitive = true
 }

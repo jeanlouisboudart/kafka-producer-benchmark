@@ -17,7 +17,7 @@ resource "kubernetes_job" "producer-benchmark" {
       spec {
         container {
           name  = "producer-benchmark"
-          image = "rust-producer-sync:0.0.1"
+          image = var.bench_producer_image
           image_pull_policy = var.image_pull_policy
           env {
             name = "KAFKA_BOOTSTRAP_SERVERS"
@@ -32,6 +32,25 @@ resource "kubernetes_job" "producer-benchmark" {
             name = "KAFKA_SASL_MECHANISMS"
             value = "PLAIN"
           }
+
+          env {
+            name = "KAFKA_SASL_MECHANISM"
+            value = "PLAIN"
+          }
+          env { # GroupBy(key)
+            name = "AGG_PER_TOPIC_NB_MESSAGES"
+            value = "1000"
+          }
+          # Java specifics
+#          env {
+#            name  = "KAFKA_SASL_JAAS_CONFIG"
+#            value = "org.apache.kafka.common.security.plain.PlainLoginModule   required username='${confluent_api_key.perf-test-client-api-key.id}'   password='${confluent_api_key.perf-test-client-api-key.secret}';"
+#          }
+#          librdkafka specifics
+          env {
+            name = "KAFKA_SASL_MECHANISMS"
+            value = "PLAIN"
+          }
           env {
             name = "KAFKA_SASL_USERNAME"
             value = confluent_api_key.perf-test-client-api-key.id
@@ -40,6 +59,15 @@ resource "kubernetes_job" "producer-benchmark" {
             name = "KAFKA_SASL_PASSWORD"
             value = confluent_api_key.perf-test-client-api-key.secret
           }
+          env {
+            name = "KAFKA_BATCH_SIZE"
+            value = "100000"
+          }
+          env {
+            name = "KAFKA_LINGER_MS"
+            value = "10"
+          }
+
           env {
             name = "KAFKA_BATCH_SIZE"
             value = "100000"

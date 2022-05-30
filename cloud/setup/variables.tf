@@ -50,6 +50,11 @@ variable "producer_instances" {
   default     = 10
 }
 
+variable "bench_producer_image" {
+  description = "Docker image FQ name to benchmark"
+  type        = string
+}
+
 variable "image_pull_policy" {
   description = "Image pull policy for producer benchmark docker images, use Never when using docker desktop"
   type        = string

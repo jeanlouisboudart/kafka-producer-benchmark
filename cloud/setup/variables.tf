@@ -37,3 +37,21 @@ variable "topic_prefix" {
   type        = string
   default     = "sample"
 }
+
+variable "k8s_context" {
+  description = "The k8s context to connect to"
+  type        = string
+  default     = "docker-desktop"
+}
+
+variable "producer_instances" {
+  description = "How many producer instances to run in parallel"
+  type        = number
+  default     = 10
+}
+
+variable "image_pull_policy" {
+  description = "Image pull policy for producer benchmark docker images, use Never when using docker desktop"
+  type        = string
+  default     = "Never"
+}

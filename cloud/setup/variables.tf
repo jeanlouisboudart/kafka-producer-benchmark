@@ -39,9 +39,9 @@ variable "topic_prefix" {
 }
 
 variable "k8s_context" {
-  description = "The k8s context to connect to"
+  description = "The k8s context to connect to. Null will use the default k8s context on your machine."
   type        = string
-  default     = "docker-desktop"
+  default     = null
 }
 
 variable "producer_instances" {

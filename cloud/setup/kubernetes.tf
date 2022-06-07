@@ -46,7 +46,7 @@ resource "kubernetes_job" "producer-benchmark" {
             name  = "KAFKA_SASL_JAAS_CONFIG"
             value = "org.apache.kafka.common.security.plain.PlainLoginModule   required username='${confluent_api_key.perf-test-client-api-key.id}'   password='${confluent_api_key.perf-test-client-api-key.secret}';"
           }
-#          librdkafka specifics
+          # librdkafka specifics
           env {
             name = "KAFKA_SASL_USERNAME"
             value = confluent_api_key.perf-test-client-api-key.id
@@ -56,42 +56,41 @@ resource "kubernetes_job" "producer-benchmark" {
             value = confluent_api_key.perf-test-client-api-key.secret
           }
           # Batching configuration
-          env { # GroupBy(key)
-            name = "AGG_PER_TOPIC_NB_MESSAGES"
-            value = "1000"
-          }
-
           env {
             name = "KAFKA_BATCH_SIZE"
-            value = "100000"
+            value = var.KAFKA_BATCH_SIZE
           }
           env {
             name = "KAFKA_LINGER_MS"
-            value = "10"
+            value = var.KAFKA_LINGER_MS
           }
           env {
             name = "KAFKA_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION"
-            value = "5"
+            value = var.KAFKA_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION
+          }
+          env { 
+            name = "AGG_PER_TOPIC_NB_MESSAGES"
+            value = var.AGG_PER_TOPIC_NB_MESSAGES
           }
           env {
             name = "NB_TOPICS"
-            value = var.nb_topics
+            value = var.NB_TOPICS
           }
           env {
             name = "NUMBER_OF_PARTITIONS"
-            value = var.nb_partitions
+            value = var.NUMBER_OF_PARTITIONS
           }
           env {
             name = "MESSAGE_SIZE"
-            value = "200"
+            value = var.MESSAGE_SIZE
           }
           env {
             name = "NB_MESSAGES"
-            value = "1000000"
+            value = var.NB_MESSAGES
           }
           env {
             name = "USE_RANDOM_KEYS"
-            value = "true"
+            value = var.USE_RANDOM_KEYS
           }
 #          env {
 #            name = "RUST_LOG"

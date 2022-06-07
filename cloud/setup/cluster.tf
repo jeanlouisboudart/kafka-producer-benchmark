@@ -12,12 +12,12 @@ resource "confluent_kafka_cluster" "perf-test-dedicated" {
 }
 
 resource "confluent_kafka_topic" "topics" {
-  count = var.nb_topics
+  count = var.NB_TOPICS
   kafka_cluster {
     id = confluent_kafka_cluster.perf-test-dedicated.id
   }
-  topic_name         = "${var.topic_prefix}_${count.index}"
-  partitions_count   = var.nb_partitions
+  topic_name         = "${var.TOPIC_PREFIX}_${count.index}"
+  partitions_count   = var.NUMBER_OF_PARTITIONS
   http_endpoint      = confluent_kafka_cluster.perf-test-dedicated.http_endpoint
   config = {
     "cleanup.policy"    = "delete"

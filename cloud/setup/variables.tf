@@ -52,13 +52,7 @@ variable "NB_MESSAGES" {
 
 variable "USE_RANDOM_KEYS" {
   description = "Use message keys. If false, it will do round robin."
-  type        = boolean
-  default     = true
-}
-
-variable "USE_RANDOM_KEYS" {
-  description = "Use message keys. If false, it will do round robin."
-  type        = boolean
+  type        = bool
   default     = true
 }
 

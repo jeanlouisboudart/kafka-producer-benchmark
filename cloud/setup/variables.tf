@@ -101,6 +101,7 @@ variable "producer_instances" {
 variable "bench_producer_image" {
   description = "Docker image FQ name to benchmark"
   type        = string
+  default     = "java-producer:latest"
 }
 
 variable "image_pull_policy" {

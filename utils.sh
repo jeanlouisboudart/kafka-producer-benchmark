@@ -78,3 +78,41 @@ run_scenario() {
   done
   
 }
+
+# terraform specifics
+verify_terraform_installed() {
+  if ! [ -x "$(command -v terraform)" ]; then
+    echo "Terraform is not installed. Please install it, and then run this sript again."
+    exit 1
+  fi
+  echo "Using terraform"
+  terraform -version
+}
+
+unload_tfvars() {
+  unset $(compgen -v TF_VAR)
+}
+
+load_scenario_in_tfvars() {
+  unload_tfvars
+  scenario=$1
+  export $(cat ${scenario} | grep -v '^#' | grep -v "BOOTSTRAP_SERVER" |sed -E 's/(.*)/TF_VAR_\1/')
+}
+
+init_cloud_terraform() {
+  terraform -chdir=cloud/setup init
+}
+
+run_scenario_cloud_terraform() {
+  scenario=$1
+  echo "Executing ${scenario} with the following characteristics"
+  cat ${scenario}
+  load_scenario_in_tfvars ${scenario}
+  terraform -chdir=cloud/setup plan
+  terraform -chdir=cloud/setup apply
+  unload_tfvars
+}
+
+stop_bench_cloud_terraform() {
+  terraform -chdir=cloud/setup destroy
+}

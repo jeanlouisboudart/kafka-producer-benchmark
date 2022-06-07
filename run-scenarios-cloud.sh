@@ -7,11 +7,6 @@ SCRIPTDIR=$(basename $SCRIPTPATH)
 
 source utils.sh
 
-if [ $# -lt 1 ]; then
-    echo "Usage $0 <scenario-name>"  
-    exit 1
-fi
-
 verify_terraform_installed
 build_all_images
 init_cloud_terraform

@@ -43,6 +43,40 @@ For instance:
 docker_compose_file=docker-compose-kraft-3-brokers.yml;./run-scenario.sh <myscenario>.env
 ```
 
+# How to run the scenarios on a Confluent Cloud cluster ?
+The repository now contains scripts to run the producer benchmark on Kubernetes connected to a Confluent Cloud cluster.
+
+## Pre-requisites 
+Pre-requisites are :
+* Terraform installed
+* Having a kubernetes environment to run the producer benchmark 
+* Making sure you have a current context (kubectl config get-contexts)
+
+## Configuring the parameters for Confluent Cloud
+Create a file called `secrets.auto.tfvars` in the `cloud/setup` folder with the following content :
+```
+confluent_org_id            = "<YOUR_CCLOUD_ORG_ID>"
+confluent_environment_id    = "<YOUR_CCLOUD_ENV_ID>" 
+confluent_cloud_api_key = "<YOUR_CCLOUD_API_KEY>"
+confluent_cloud_api_secret = "<YOUR_CCLOUD_API_KEY>"
+```
+
+To know all the variables you can tweak, please read [variable file](cloud/setup/variables.tf)
+
+## Running all scenarios
+To run all scenarios use the following command :
+```
+./run-scenarios-cloud.sh
+```
+The script will execute all the scenario files named `scenario-<description>.env` at the root of the project against each Kafka Producer clients registered in the project.
+
+## Running a single scenario
+
+To run a scenario use the following command :
+```
+./run-scenario-cloud.sh <myscenario>.env
+```
+
 # How to contribute ?
 Have any idea to make this benchmark better ? Found a bug ?
 Do not hesitate to report us via github issues and/or create a pull request.

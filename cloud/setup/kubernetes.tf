@@ -55,47 +55,14 @@ resource "kubernetes_job" "producer-benchmark" {
             name = "KAFKA_SASL_PASSWORD"
             value = confluent_api_key.perf-test-client-api-key.secret
           }
-          # Batching configuration
-          env {
-            name = "KAFKA_BATCH_SIZE"
-            value = var.KAFKA_BATCH_SIZE
+          # Loading variables from scenario .env file
+          dynamic "env" {
+            for_each = data.external.load_scenario_file.result
+            content {
+              name = env.key
+              value = env.value
+            }
           }
-          env {
-            name = "KAFKA_LINGER_MS"
-            value = var.KAFKA_LINGER_MS
-          }
-          env {
-            name = "KAFKA_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION"
-            value = var.KAFKA_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION
-          }
-          env { 
-            name = "AGG_PER_TOPIC_NB_MESSAGES"
-            value = var.AGG_PER_TOPIC_NB_MESSAGES
-          }
-          env {
-            name = "NB_TOPICS"
-            value = var.NB_TOPICS
-          }
-          env {
-            name = "NUMBER_OF_PARTITIONS"
-            value = var.NUMBER_OF_PARTITIONS
-          }
-          env {
-            name = "MESSAGE_SIZE"
-            value = var.MESSAGE_SIZE
-          }
-          env {
-            name = "NB_MESSAGES"
-            value = var.NB_MESSAGES
-          }
-          env {
-            name = "USE_RANDOM_KEYS"
-            value = var.USE_RANDOM_KEYS
-          }
-#          env {
-#            name = "RUST_LOG"
-#            value = "DEBUG,librdkafka=trace,rdkafka::client=debug"
-#          }
         }
         restart_policy = "Never"
       }

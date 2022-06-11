@@ -13,7 +13,7 @@ init_cloud_terraform
 
 for scenario in $(ls scenario-*.env)
 do
-    run_scenario_cloud_terraform $scenario
+    run_scenario_cloud_terraform ${SCRIPTPATH} ${scenario}
 done
 
 stop_bench_cloud_terraform

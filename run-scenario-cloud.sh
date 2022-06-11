@@ -18,6 +18,6 @@ init_cloud_terraform
 
 scenario=$1
 
-run_scenario_cloud_terraform $scenario
+run_scenario_cloud_terraform ${SCRIPTPATH} ${scenario}
 
 stop_bench_cloud_terraform

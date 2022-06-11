@@ -19,7 +19,8 @@ RUN cargo build --release --bin kafka-producer-benchmark-sync
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bullseye-slim AS runtime
 WORKDIR app
-#RUN apt update
+RUN apt update
+RUN apt install -y ca-certificates
 #RUN apt install -y libssl-dev
 #RUN apt install -y libc6
 COPY --from=builder /app/target/release/kafka-producer-benchmark-sync /usr/local/bin

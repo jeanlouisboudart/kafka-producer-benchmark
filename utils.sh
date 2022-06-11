@@ -100,7 +100,6 @@ run_scenario_cloud_terraform() {
   cat ${scenario}
   terraform -chdir=cloud/setup plan -var "scenario_file=${scenario_folder}/${scenario}"
   terraform -chdir=cloud/setup apply
-  unload_tfvars
 }
 
 stop_bench_cloud_terraform() {

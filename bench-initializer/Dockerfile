@@ -41,7 +41,7 @@ RUN apk add bash
 # copy the custom JRE produced from jlink
 COPY --from=jre-build /app/jre jre
 # copy the app dependencies
-COPY --from=jre-build /app/lib/* .
+COPY --from=jre-build /app/lib/* /deployment/
 # copy the app
 COPY --from=jre-build /app/app.jar app.jar
 

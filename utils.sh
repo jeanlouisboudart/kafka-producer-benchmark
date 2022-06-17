@@ -78,3 +78,30 @@ run_scenario() {
   done
   
 }
+
+# terraform specifics
+verify_terraform_installed() {
+  if ! [ -x "$(command -v terraform)" ]; then
+    echo "Terraform is not installed. Please install it, and then run this sript again."
+    exit 1
+  fi
+  echo "Using terraform"
+  terraform -version
+}
+
+init_cloud_terraform() {
+  terraform -chdir=cloud/setup init
+}
+
+run_scenario_cloud_terraform() {
+  scenario_folder=$1
+  scenario=$2
+  echo "Executing ${scenario} with the following characteristics"
+  cat ${scenario}
+  terraform -chdir=cloud/setup plan -var "scenario_file=${scenario_folder}/${scenario}"
+  terraform -chdir=cloud/setup apply
+}
+
+stop_bench_cloud_terraform() {
+  terraform -chdir=cloud/setup destroy
+}

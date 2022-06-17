@@ -32,7 +32,10 @@ def main(args):
 
 
 def extract_logs(file_name, params, metrics) -> tuple:
-    lang = file_lang_pattern.fullmatch(file_name).group(1)
+    file_match = file_lang_pattern.fullmatch(file_name)
+    if file_match is None:
+        return ()
+    lang = file_match.group(1)
     params.append(('lang', lang))
     file = open(file_name, 'r')
     for line in file.readlines():

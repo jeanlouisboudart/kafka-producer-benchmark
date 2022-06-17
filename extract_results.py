@@ -17,7 +17,11 @@ metric_patterns = [f"{metric}\\s*=\\s*(NaN|\\d*\\.?\\d*)" for metric in extracte
 metrics_pattern = re.compile('.*' + '.*'.join(metric_patterns))
 report_pattern = re.compile('.*REPORT.*\\s*Produced\\s*(\\d+)\\s+with\\s+(\\d+)\\s+ProduceRequest\\s+in\\s+(.*)')
 file_lang_pattern = re.compile('.*/(.*)-producer.*[.]txt')
-config_to_print = ['batch.size', 'linger.ms']
+config_to_print = [
+    'batch.size',
+    'linger.ms',
+    'max.in.flight.requests.per.connection',
+]
 
 
 def main(args):
@@ -83,7 +87,12 @@ def csv_report(params: list[(str, str)], metrics: list[tuple], report: tuple):
     print('------------')
     print(','.join(extracted_metrics))
     for metric in metrics:
-        print(','.join(metric))
+        ignore = True
+        for m in metric:
+            if ignore and not (m == 0 or m == 'NaN' or m == 0.0 or m == '0' or m == '0.0'):
+                ignore = False
+        if not ignore:
+            print(','.join(metric))
     print('------------')
     print('nb_msgs, nb_requests, duration')
     print(','.join(report))

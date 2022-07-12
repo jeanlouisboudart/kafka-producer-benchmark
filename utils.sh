@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NETWORK_NAME=benchmark-producer-network
-PRODUCER_IMAGES=("java-producer" "python-producer" "dotnet-producer" "rust-producer-sync")
+PRODUCER_IMAGES=("java-producer" "python-producer" "dotnet-producer" "rust-producer-sync" "golang-producer")
 
 docker_compose_file=${docker_compose_file:-docker-compose-3-brokers.yml}
 

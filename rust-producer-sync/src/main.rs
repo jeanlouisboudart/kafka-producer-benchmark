@@ -122,7 +122,7 @@ fn main() {
     let stats = stats_arc.lock().unwrap();
     let seconds = elapsed.num_seconds();
     info!(
-        "REPORT: Produced {} with {} ProduceRequest in {:.2}:{:.2}:{:.2}.{:.3}",
+        "REPORT: Produced {} with {} ProduceRequests in {:.2}:{:.2}:{:.2}.{:.3}",
         stats.nb_msgs_sent,
         stats.request_count,
         seconds / 60 / 60,

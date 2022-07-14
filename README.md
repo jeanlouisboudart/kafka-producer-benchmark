@@ -127,7 +127,7 @@ At the end of the run make sure all messages are delivered (ex. by calling produ
 At the end of the run make sure you produce a log starting with "REPORT" keyword, this will be displayed at when executing scenarios.
 Example:
 ```java
-    logger.info("REPORT: Produced %s with %s ProduceRequest in %s", lastTotalMsgsMetric, lastRequestCount, str(timedelta(seconds=end_time - start_time)))
+    logger.info("REPORT: Produced %s with %s ProduceRequests in %s", lastTotalMsgsMetric, lastRequestCount, str(timedelta(seconds=end_time - start_time)))
 ```
 
 ### My client is ready, how can I plug it in the test suite ?

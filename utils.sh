@@ -2,6 +2,8 @@
 
 NETWORK_NAME=benchmark-producer-network
 PRODUCER_IMAGES=("java-producer" "python-producer" "dotnet-producer" "rust-producer-sync" "golang-producer")
+BENCH_ROOT_DIR=$( dirname $(realpath ${BASH_SOURCE[0]}))
+
 
 docker_compose_file=${docker_compose_file:-docker-compose-3-brokers.yml}
 
@@ -12,12 +14,21 @@ build_image() {
   docker build -t $imageName ${folder}
 }
 
+build_jupiter_image() {
+  # current uid and gid
+  curr_uid=`id -u`
+  curr_gid=`id -g`
+  echo $BENCH_ROOT_DIR
+  docker build --build-arg UID=${curr_uid} --build-arg GID=${curr_gid} -f ${BENCH_ROOT_DIR}/report/Dockerfile -t jupyter-converter ${BENCH_ROOT_DIR}/report
+}
+
 build_all_images() {
   build_image bench-initializer 
   for producer_image in ${PRODUCER_IMAGES[@]}
   do
     build_image ${producer_image}
   done
+  build_jupiter_image 
 }
 
 create_bench_network() {
@@ -58,8 +69,9 @@ run_bench_initializer() {
 run_scenario_with_results() {
   imageName=$1
   scenario=$2
+  resultsFolder=$3
   echo "Running ${scenario} with ${imageName}"
-  resultsFile=results/${scenario}/${imageName}.txt
+  resultsFile="${resultsFolder}/${imageName}.txt"
   mkdir -p $(dirname ${resultsFile})
   run_container ${imageName} ${scenario} > $resultsFile 2>&1 || echo "Start of container ${imageName} failed check output logs !"
   
@@ -71,12 +83,24 @@ run_scenario() {
   scenario=$1
   echo "Executing ${scenario} with the following characteristics"
   cat ${scenario}
-  run_scenario_with_results bench-initializer ${scenario}
+  resultsFolder="${BENCH_ROOT_DIR}/results/${scenario}"
+  run_scenario_with_results bench-initializer ${scenario} ${resultsFolder}
   for producer_image in ${PRODUCER_IMAGES[@]}
   do
-    run_scenario_with_results ${producer_image} ${scenario}
+    run_scenario_with_results ${producer_image} ${scenario} ${resultsFolder}
   done
-  
+  generate_reports ${scenario} ${resultsFolder}
+}
+
+generate_reports() {
+  scenario=$1
+  resultsFolder=$2
+  cp ${scenario} ${resultsFolder}/scenario.env
+  cp ${BENCH_ROOT_DIR}/report/benchmark-report.ipynb ${resultsFolder}/benchmark-report.ipynb
+
+  ${BENCH_ROOT_DIR}/report/extract_results.py ${resultsFolder}
+  docker run --rm -v ${resultsFolder}:/home/jovyan/work jupyter-converter
+  echo "Markdown report generated in ${resultsFolder}/report.md"
 }
 
 # terraform specifics

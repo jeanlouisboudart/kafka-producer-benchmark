@@ -41,7 +41,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.sample.BenchmarkProducer</mainClass>
+                            <mainClass>com.sample.BenchmarkInitializer</mainClass>
                             <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>

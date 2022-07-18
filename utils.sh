@@ -2,8 +2,7 @@
 
 NETWORK_NAME=benchmark-producer-network
 PRODUCER_IMAGES=("java-producer" "python-producer" "dotnet-producer" "rust-producer-sync" "golang-producer")
-BENCH_ROOT_DIR=$( dirname $(realpath ${BASH_SOURCE[0]}))
-
+BENCH_ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 docker_compose_file=${docker_compose_file:-docker-compose-3-brokers.yml}
 

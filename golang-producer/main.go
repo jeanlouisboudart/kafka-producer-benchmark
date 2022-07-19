@@ -159,5 +159,5 @@ func main() {
 	elapsed := time.Since(start)
 
 	p.Close()
-	log.Printf("REPORT: Produced %d with %d ProduceRequests in %s", statsMetrics.LastTotalMsgsMetric, statsMetrics.LastRequestCount, elapsed)
+	log.Printf("REPORT: Produced %d with %d ProduceRequests in %d ms", statsMetrics.LastTotalMsgsMetric, statsMetrics.LastRequestCount, elapsed.Milliseconds())
 }

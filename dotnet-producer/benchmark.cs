@@ -61,8 +61,8 @@ class ProducerBenchmark {
             producer.Flush();
             timer.Stop();
             TimeSpan duration = timer.Elapsed;
-            string durationAsString = String.Format("{0:00}:{1:00}:{2:00}.{3}", duration.Hours, duration.Minutes, duration.Seconds, duration.Milliseconds);
-            logger.LogInformation("REPORT: Produced {lastTotalMsgsMetric} with {lastRequestCount} ProduceRequests in {durationAsString}",producer.lastMetricCollectionTimestamp,producer.lastRequestCount,durationAsString);
+            long durationMs = Math.Max(0L, (long)duration.TotalMilliseconds);
+            logger.LogInformation("REPORT: Produced {lastTotalMsgsMetric} with {lastRequestCount} ProduceRequests in {durationAsString} ms",producer.lastMetricCollectionTimestamp,producer.lastRequestCount,durationMs);
 
         }
     }

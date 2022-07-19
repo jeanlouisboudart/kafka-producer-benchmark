@@ -102,7 +102,8 @@ def main():
         producer.flush()
 
         end_time = time.monotonic()
-        logger.info("REPORT: Produced %s with %s ProduceRequests in %s", lastTotalMsgsMetric, lastRequestCount, str(timedelta(seconds=end_time - start_time)))
+        delta = timedelta(seconds=end_time - start_time).total_seconds() * 1000
+        logger.info("REPORT: Produced %s with %s ProduceRequests in %s ms", lastTotalMsgsMetric, lastRequestCount, str(round(delta)))
     except BaseException as e:
         logger.info("Something bad happened : %s", str(e))
     finally:

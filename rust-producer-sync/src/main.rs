@@ -120,15 +120,11 @@ fn main() {
     producer.flush(Duration::from_secs(30));
     let elapsed = Utc::now() - start;
     let stats = stats_arc.lock().unwrap();
-    let seconds = elapsed.num_seconds();
     info!(
-        "REPORT: Produced {} with {} ProduceRequests in {:.2}:{:.2}:{:.2}.{:.3}",
+        "REPORT: Produced {} with {} ProduceRequests in {} ms",
         stats.nb_msgs_sent,
         stats.request_count,
-        seconds / 60 / 60,
-        seconds / 60 % 60,
-        seconds % 60,
-        elapsed.num_milliseconds() % (seconds * 1000)
+        elapsed.num_milliseconds()
     );
 }
 

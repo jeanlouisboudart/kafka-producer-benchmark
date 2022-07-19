@@ -14,7 +14,7 @@ extracted_metrics = [
 ]
 metric_patterns = [fr"{metric}\s*=\s*(NaN|\d*\.?\d*)" for metric in extracted_metrics]
 metrics_pattern = re.compile('.*' + '.*'.join(metric_patterns))
-report_pattern = re.compile(r'.*REPORT.*\s*Produced\s*(\d+?\.?\d+)\s+with\s+(\d+?\.?\d+)\s+ProduceRequests\s+in\s+(.*)')
+report_pattern = re.compile(r'.*REPORT.*\s*Produced\s*(\d+?\.?\d+)\s+with\s+(\d+?\.?\d+)\s+ProduceRequests\s+in\s+(.*)ms.*')
 file_lang_pattern = re.compile('.*/(.*)-producer.*[.]txt')
 
 

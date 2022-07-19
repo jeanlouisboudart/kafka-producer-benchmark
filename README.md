@@ -118,16 +118,15 @@ This will help to play with batch.size/linger.ms/etc...
 By default each client implementation will need to capture metrics at regular interval (defined via REPORTING_INTERVAL).
 The should be logged using the following format to make things easier to compare: 
 ```java
-        logger.info("Sent rate = {}/sec, duration spent in queue = {}ms, batch size = {}, request rate = {}/sec, request latency avg = {}ms, records per ProduceRequest = {}", avgSendRate, queueTimeAvg, batchSizeAvg, requestRate, requestLatencyAvg, recordsPerRequestAvg);
-
+logger.info("Sent rate = {}/sec, duration spent in queue = {}ms, batch size = {}, request rate = {}/sec, request latency avg = {}ms, records per ProduceRequest = {}", avgSendRate, queueTimeAvg, batchSizeAvg, requestRate, requestLatencyAvg, recordsPerRequestAvg);
 ```
 
 At the end of the run make sure all messages are delivered (ex. by calling producer.flush().
 
 At the end of the run make sure you produce a log starting with "REPORT" keyword, this will be displayed at when executing scenarios.
 Example:
-```java
-    logger.info("REPORT: Produced %s with %s ProduceRequests in %s", lastTotalMsgsMetric, lastRequestCount, str(timedelta(seconds=end_time - start_time)))
+```python
+logger.info("REPORT: Produced %s with %s ProduceRequests in %s ms", lastTotalMsgsMetric, lastRequestCount, str(round(delta)))
 ```
 
 ### My client is ready, how can I plug it in the test suite ?

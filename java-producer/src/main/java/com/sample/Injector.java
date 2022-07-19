@@ -138,8 +138,8 @@ public class Injector {
         Map<MetricName, ? extends Metric> metrics = producer.metrics();
         double totalMsgsMetric = producerMetric(metrics, "record-send-total");
         double requestTotal = producerMetric(metrics, "request-total");
-        String duration = DurationFormatUtils.formatDurationHMS(Instant.now().toEpochMilli() - startTime.toEpochMilli());
-        logger.info("REPORT: Produced {} with {} ProduceRequests in {}", totalMsgsMetric, requestTotal, duration);
+        Long duration = Instant.now().toEpochMilli() - startTime.toEpochMilli();
+        logger.info("REPORT: Produced {} with {} ProduceRequests in {} ms", totalMsgsMetric, requestTotal, duration);
     }
 
     private void sendCallback(ProducerRecord<String, String> record, RecordMetadata recordMetadata, Exception e) {

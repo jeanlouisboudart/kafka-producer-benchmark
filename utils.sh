@@ -121,8 +121,12 @@ run_scenario_cloud_terraform() {
   scenario=$2
   echo "Executing ${scenario} with the following characteristics"
   cat ${scenario}
-  terraform -chdir=cloud/setup plan -var "scenario_file=${scenario_folder}/${scenario}"
-  terraform -chdir=cloud/setup apply
+  for producer_image in ${PRODUCER_IMAGES[@]}
+  do
+    echo "Executing"
+    terraform -chdir=cloud/setup plan -var "scenario_file=${scenario_folder}/${scenario}" -var "bench_producer_image=${producer_image}"
+    terraform -chdir=cloud/setup apply -auto-approve
+  done
 }
 
 stop_bench_cloud_terraform() {

@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "kafka-producer-bench-ns" {
 resource "kubernetes_job" "producer-benchmark" {
   depends_on = [confluent_kafka_topic.topics]
   metadata {
-    name = "producer-benchmark"
+    name = "${var.bench_producer_image}"
     namespace = kubernetes_namespace.kafka-producer-bench-ns.id
   }
   spec {
@@ -16,8 +16,8 @@ resource "kubernetes_job" "producer-benchmark" {
       metadata {}
       spec {
         container {
-          name  = "producer-benchmark"
-          image = var.bench_producer_image
+          name  = "${var.bench_producer_image}"
+          image = "${var.bench_producer_image}:${var.bench_producer_image_version}"
           image_pull_policy = var.image_pull_policy
           env {
             name = "KAFKA_BOOTSTRAP_SERVERS"

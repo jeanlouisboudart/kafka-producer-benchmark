@@ -123,7 +123,7 @@ run_scenario_cloud_terraform() {
   cat ${scenario}
   for producer_image in ${PRODUCER_IMAGES[@]}
   do
-    echo "Executing"
+    echo "Executing benchmark with ${producer_image}"
     terraform -chdir=cloud/setup plan -var "scenario_file=${scenario_folder}/${scenario}" -var "bench_producer_image=${producer_image}"
     terraform -chdir=cloud/setup apply -auto-approve
   done

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     confluent = {
       source  = "confluentinc/confluent"
-      version = "0.8.1" # 0.9 has a bug with timeouts and RBAC at the moment
+      version = "1.0.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"

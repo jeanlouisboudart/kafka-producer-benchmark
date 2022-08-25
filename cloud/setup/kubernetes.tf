@@ -4,6 +4,34 @@ resource "kubernetes_namespace" "kafka-producer-bench-ns" {
   }
 }
 
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#name: pvc-name
+#spec:
+#accessModes:
+#- ReadWriteMany
+#resources:
+#requests:
+#storage: 1Gi
+
+resource "kubernetes_persistent_volume_claim" "report-pvc" {
+  metadata {
+    name = "report-pvc"
+  }
+  spec {
+    access_modes = [
+      "ReadWriteMany"
+    ]
+    resources {
+      requests = {
+        storage = "256Mi"
+      }
+    }
+  }
+}
+
 resource "kubernetes_job" "producer-benchmark" {
   depends_on = [confluent_kafka_topic.topics]
   metadata {
@@ -63,9 +91,20 @@ resource "kubernetes_job" "producer-benchmark" {
               value = env.value
             }
           }
+          volume_mount {
+            mount_path = "results"
+            name       = "report"
+          }
+        }
+        volume {
+          name = "report"
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim.report-pvc.metadata.0.name
+          }
         }
         restart_policy = "Never"
       }
+
     }
     backoff_limit = 4
     completions = var.producer_instances
